@@ -132,9 +132,6 @@ function App() {
           card={selectedCard}
           onClose={closeAllPopup}
         />
-        <Routes>
-          <Route path="/sign-up" element={<Login />} />
-        </Routes>
       </div>
     </CurrentUserContext.Provider>
   );

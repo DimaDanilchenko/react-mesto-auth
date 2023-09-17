@@ -1,4 +1,5 @@
 import React from "react";
+import headerLogo from "../images/Vector.svg";
 
 function Register() {
   return (
