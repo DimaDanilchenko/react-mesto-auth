@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -8,6 +9,7 @@ import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import api from '../utils/api';
+import Login from './Login';
 
 function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -130,6 +132,9 @@ function App() {
           card={selectedCard}
           onClose={closeAllPopup}
         />
+        <Routes>
+          <Route path="/sign-up" element={<Login />} />
+        </Routes>
       </div>
     </CurrentUserContext.Provider>
   );
