@@ -29,10 +29,10 @@ export const loginUser = (email, password) => {
 
 export const tokenCheck = (token) => {
   return fetch(`${BASE_URL}/users/me`, {
-    method: "Get",
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-    "Authorization" : `Bearer ${token}`
+      Authorization: `Bearer ${token}`
     }
   }).then(handleRes);
 };

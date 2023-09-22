@@ -8,7 +8,8 @@ import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import api from '../utils/api';
-import { Route, Routes, Navigate } from "react-router-dom";
+import * as auth from "../utils/auth";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute';
 import Register from './Register';
 import Login from './Login';
@@ -16,7 +17,9 @@ import InfoTooltip from './InfoTooltip';
 
 
 
+
 function App() {
+  const navigate = useNavigate();
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
@@ -26,8 +29,9 @@ function App() {
   const [isCardLikeClick, setIsCardLikeClick] = useState(false);
   const [cards, setCards] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
-  const [status, setStatus] = React.useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [email, setEmail] = useState("");
 
 
   useEffect(() => {
@@ -42,6 +46,33 @@ function App() {
       })
       .catch(console.error)
   }, [])
+  
+  useEffect(() => {
+    tokenCheck();
+  }, []);
+
+  function tokenCheck() {
+    if (localStorage.getItem("jwt")) {
+      const jwt = localStorage.getItem("jwt");
+      console.log(jwt);
+      if (jwt) {
+        auth
+          .tokenCheck(jwt)
+          .then((res) => {
+            if (res) {
+              setEmail(res.data.email);
+              setLoggedIn(true);
+              navigate("/");
+            }
+          })
+          .catch((err) => {
+            localStorage.removeItem('jwt');
+            console.log(err);
+            navigate("/sign-in");
+          });
+      }
+    }
+  }
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
@@ -105,6 +136,46 @@ function App() {
       .catch(console.error)
   }
 
+  function handleLogin(email, password) {
+    auth
+      .loginUser(email, password)
+      .then((res) => {
+        if (res) {
+          localStorage.setItem("jwt", res.token);
+          tokenCheck();
+          console.log(loggedIn);
+          navigate('/', { replace: true });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsInfoTooltipOpen(true);
+        setStatus(false);
+        navigate('/sign-in', { replace: true });
+      });
+  }
+  function handleRegister(email, password){
+    auth.registerUser(email, password)
+      .then((res) => {
+        if (res) {
+          setIsInfoTooltipOpen(true);
+          setStatus(true);
+          console.log(loggedIn);
+          navigate('/', { replace: true });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsInfoTooltipOpen(true);
+        setStatus(false);
+      });
+  }
+
+  function handleSignOut() {
+    localStorage.removeItem("jwt");
+    setLoggedIn(false);
+  }
+
   function closeAllPopup() {
     setIsEditAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
@@ -115,7 +186,7 @@ function App() {
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
+      <Header loggedIn={loggedIn} email={email} onSignOut={handleSignOut} />
         <Routes>
           <Route
             path="/"
@@ -131,8 +202,12 @@ function App() {
               onCardDelete={handleCardDelete}
             />}
           />
-          <Route path="/sign-up" element={<Register />} />
-          <Route path="/sign-in" element={<Login />} />
+          <Route path="/sign-up" element={
+            <Register onRegister={handleRegister} />} 
+          />
+          <Route path="/sign-in" element={
+            <Login onLogin={handleLogin} />}
+          />
         </Routes>
         <Footer />
         <EditProfilePopup
