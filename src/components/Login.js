@@ -1,21 +1,15 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import Header from "./Header";
-
 
 function Login() {
   return (
     <div className="page">
-      <Header />
-      <form className="login">
-        <p className="login__header">Регистрация</p>
-        <input type="email" name="email" className="login__email" placeholder="Email:" />
-        <input type="password" name="name" className="login__password" placeholder="Пароль:" />
-        <input type="submit" value="Зарегистрироваться" className="login__submit" />
-        <p className="login__text">Уже зарегистрированы? <Link to="/sign-in" className="login__link">Войти</Link></p>
+      <form className="register">
+        <p className="register__header">Вход</p>
+        <input type="email" name="email" className="register__email" placeholder="Email:" />
+        <input type="password" name="name" className="register__password" placeholder="Пароль:" />
+        <input type="submit" value="Войти" className="register__submit" />
       </form>
     </div>
-
   );
 }
 

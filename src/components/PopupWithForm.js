@@ -35,13 +35,3 @@ function PopupWithForm(props) {
 }
 
 export default PopupWithForm;
-/*
-  <input
-    id="profile-image-popup"
-    type="url"
-    className="popup__input profile-image-popup__input profile-image-popup__input_type_link"
-    name="avatar"
-    placeholder="Ссылка на скачивание"
-    required=""
-  />
-*/

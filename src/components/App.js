@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -9,7 +8,13 @@ import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import api from '../utils/api';
+import { Route, Routes, Navigate } from "react-router-dom";
+import ProtectedRoute from './ProtectedRoute';
+import Register from './Register';
 import Login from './Login';
+import InfoTooltip from './InfoTooltip';
+
+
 
 function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -20,6 +25,10 @@ function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [isCardLikeClick, setIsCardLikeClick] = useState(false);
   const [cards, setCards] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
+  const [status, setStatus] = React.useState(false);
+
 
   useEffect(() => {
     api.getInitialCards()
@@ -34,10 +43,10 @@ function App() {
       .catch(console.error)
   }, [])
 
-
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
   }
+
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true);
   }
@@ -50,6 +59,7 @@ function App() {
   function handleDeleteCardClick() {
     setIsDeleteCardClick(true);
   }
+
   function handleAddPlaceSubmit({ name, link }) {
     api.addNewCard(name, link)
       .then((newCard) => {
@@ -59,17 +69,16 @@ function App() {
       .catch(console.error)
   }
   function handleCardLike(card) {
-    // Снова проверяем, есть ли уже лайк на этой карточке
+    // Снова проверяем, есть ли уже лайк на этой карточке 
     const isLiked = card.likes.some(i => i._id === currentUser._id);
-
-    // Отправляем запрос в API и получаем обновлённые данные карточки
-
+    // Отправляем запрос в API и получаем обновлённые данные карточки 
     api.changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
         setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
       })
       .catch(console.error);
   }
+
   function handleUpdateUser({ name, about }) {
     api.setUserProfile(name, about)
       .then((res) => {
@@ -78,6 +87,7 @@ function App() {
       })
       .catch(console.error)
   }
+
   function handleUpdateAvatar({ avatar }) {
     api.setUserAvatar(avatar)
       .then((res) => {
@@ -86,6 +96,7 @@ function App() {
       })
       .catch(console.error);
   }
+
   function handleCardDelete(card) {
     api.removeCard(card._id)
       .then((res) => {
@@ -93,25 +104,36 @@ function App() {
       })
       .catch(console.error)
   }
+
   function closeAllPopup() {
     setIsEditAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setSelectedCard(null);
+    setIsInfoTooltipOpen(false);
   }
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <Header />
-        <Main
-          cards={cards}
-          onEditAvatar={handleEditAvatarClick}
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onCardClick={handleCardClick}
-          onCardLike={handleCardLike}
-          onCardDelete={handleCardDelete}
-        />
+        <Routes>
+          <Route
+            path="/"
+            element={<ProtectedRoute
+              element={Main}
+              loggedIn={loggedIn}
+              cards={cards}
+              onEditAvatar={handleEditAvatarClick}
+              onEditProfile={handleEditProfileClick}
+              onAddPlace={handleAddPlaceClick}
+              onCardClick={handleCardClick}
+              onCardLike={handleCardLike}
+              onCardDelete={handleCardDelete}
+            />}
+          />
+          <Route path="/sign-up" element={<Register />} />
+          <Route path="/sign-in" element={<Login />} />
+        </Routes>
         <Footer />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
@@ -132,9 +154,17 @@ function App() {
           card={selectedCard}
           onClose={closeAllPopup}
         />
+        <InfoTooltip
+          isOpen={isInfoTooltipOpen}
+          onClose={closeAllPopup}
+          status={status}
+        />
       </div>
     </CurrentUserContext.Provider>
   );
+
 }
 
-export default App;
+
+
+export default App; 
