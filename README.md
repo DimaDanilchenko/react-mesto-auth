@@ -20,4 +20,4 @@
 
 ### Ссылка на проект:
 
-* https://dimadanilchenko.github.io/mesto/
+* https://dimadanilchenko.github.io/react-mesto-auth
